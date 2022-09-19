@@ -1,5 +1,6 @@
 package com.kovarpavel.ownyourfeed.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
@@ -7,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(schema = "rss_database", name = "user")
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,6 +18,7 @@ public class User {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -28,7 +30,13 @@ public class User {
     @JsonManagedReference
     private Set<Source> sources;
 
-    public User() {}
+    public UserEntity() {}
+
+    public UserEntity(final String username, final String email, final String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 
     public Long getId() {
         return id;

@@ -20,7 +20,7 @@ public class Source {
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
     @JsonBackReference
-    private Set<User> users;
+    private Set<UserEntity> userEntities;
 
     public Source() {}
 
@@ -62,12 +62,12 @@ public class Source {
         this.description = description;
     }
 
-    public Set<User> getUsers() {
-        return users;
+    public Set<UserEntity> getUsers() {
+        return userEntities;
     }
 
-    public void setUsers(Set<User> users) {
-        this.users = users;
+    public void setUsers(Set<UserEntity> userEntities) {
+        this.userEntities = userEntities;
     }
 
     @Override
