@@ -1,13 +1,14 @@
-package com.kovarpavel.ownyourfeed.entity;
+package com.kovarpavel.ownyourfeed.source;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.kovarpavel.ownyourfeed.authentication.UserEntity;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(schema = "rss_database", name = "source")
-public class Source {
+public class SourceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,11 +21,11 @@ public class Source {
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
     @JsonBackReference
-    private Set<UserEntity> userEntities;
+    private Set<UserEntity> users;
 
-    public Source() {}
+    public SourceEntity() {}
 
-    public Source(String title, String url, String description) {
+    public SourceEntity(String title, String url, String description) {
         this.title = title;
         this.url = url;
         this.description = description;
@@ -63,11 +64,11 @@ public class Source {
     }
 
     public Set<UserEntity> getUsers() {
-        return userEntities;
+        return users;
     }
 
-    public void setUsers(Set<UserEntity> userEntities) {
-        this.userEntities = userEntities;
+    public void setUsers(Set<UserEntity> users) {
+        this.users = users;
     }
 
     @Override

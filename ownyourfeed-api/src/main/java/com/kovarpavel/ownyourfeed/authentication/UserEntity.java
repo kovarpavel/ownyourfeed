@@ -1,7 +1,8 @@
-package com.kovarpavel.ownyourfeed.entity;
+package com.kovarpavel.ownyourfeed.authentication;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.kovarpavel.ownyourfeed.source.SourceEntity;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class UserEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "source_id"))
     @JsonManagedReference
-    private Set<Source> sources;
+    private Set<SourceEntity> sources;
 
     public UserEntity() {}
 
@@ -70,11 +71,11 @@ public class UserEntity {
         this.password = password;
     }
 
-    public Set<Source> getSources() {
+    public Set<SourceEntity> getSources() {
         return sources;
     }
 
-    public void setSources(Set<Source> sources) {
+    public void setSources(Set<SourceEntity> sources) {
         this.sources = sources;
     }
 

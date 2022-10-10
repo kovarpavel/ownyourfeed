@@ -1,43 +1,62 @@
 package com.kovarpavel.ownyourfeed.rss;
 
-import com.kovarpavel.ownyourfeed.dto.SourceInfoDTO;
+import com.kovarpavel.ownyourfeed.source.dto.SourceDetailsDTO;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 
 @Service
 public class RssService {
 
     private final WebClient webClient;
-    private final RssContentParserService rssContentParserService;
+    private final SAXBuilder saxBuilder;
 
-    public RssService(RssContentParserService rssContentParserService) {
-        webClient = WebClient.builder().build();
-        this.rssContentParserService = rssContentParserService;
+    public RssService() {
+        this.webClient = WebClient.builder().build();
+        this.saxBuilder = new SAXBuilder();
     }
 
-    public SourceInfoDTO getRssChannelInfo(final String url) throws RssApiException {
+    public SourceDetailsDTO getRssChannelInfo(final String url) throws RssApiException {
         String xmlBody = getResponseBody(url);
         if (xmlBody == null) {
             throw new RssApiException("Response from URL: " + url + " is empty.");
         }
-        SourceInfoDTO sourceInfoDTO = rssContentParserService.getRssChannelInfo(xmlBody);
+        SourceDetailsDTO sourceInfoDTO = parseRssSourceDetails(xmlBody);
         if (sourceInfoDTO == null) {
             throw new RssApiException("Parsing of response from URL: " + url + " failed.");
         }
         return sourceInfoDTO;
     }
 
-    // TODO add function to save source to DB for user
-    // check if url is already in db
-
 
     private String getResponseBody(final String url) {
         ResponseEntity<String> response =
                 webClient.get().uri(URI.create(url)).retrieve().toEntity(String.class).block();
         return response != null ? response.getBody() : null;
+    }
+
+    private SourceDetailsDTO parseRssSourceDetails(String rssChannelXml) {
+        try {
+            final Document rss = saxBuilder.build(new ByteArrayInputStream(rssChannelXml.getBytes()));
+            final Element channel = rss.getRootElement().getChild("channel");
+
+            return new SourceDetailsDTO(
+                    channel.getChildText("title"),
+                    channel.getChildText("description"),
+                    channel.getChildText("link")
+            );
+
+        } catch (JDOMException | java.io.IOException exception ) {
+            System.out.println(exception.getMessage());
+            return null;
+        }
     }
 
 }
