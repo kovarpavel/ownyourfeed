@@ -1,7 +1,5 @@
-package com.kovarpavel.ownyourfeed.rest;
+package com.kovarpavel.ownyourfeed.authentication;
 
-import com.kovarpavel.ownyourfeed.dto.UserRegistrationDTO;
-import com.kovarpavel.ownyourfeed.service.AuthenticationService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -15,6 +15,16 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
+    @ExceptionHandler(value = UserNotFoundException.class)
+    protected ResponseEntity<Object> handleUserNotFound(UserNotFoundException ex, WebRequest request) {
+        return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(value = SourceNotFoundException.class)
+    protected ResponseEntity<Object> handleSourceNotFound(SourceNotFoundException ex, WebRequest request) {
+        return ResponseEntity.notFound().build();
+    }
+
     @ExceptionHandler(value = WebClientResponseException.class)
     protected ResponseEntity<Object> handleWebClientResponseException(WebClientResponseException ex, WebRequest request) {
         return ResponseEntity.notFound().build();

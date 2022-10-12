@@ -1,9 +1,6 @@
-package com.kovarpavel.ownyourfeed.service;
+package com.kovarpavel.ownyourfeed.authentication;
 
-import com.kovarpavel.ownyourfeed.dto.UserRegistrationDTO;
-import com.kovarpavel.ownyourfeed.entity.UserEntity;
 import com.kovarpavel.ownyourfeed.exception.UserExistException;
-import com.kovarpavel.ownyourfeed.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
