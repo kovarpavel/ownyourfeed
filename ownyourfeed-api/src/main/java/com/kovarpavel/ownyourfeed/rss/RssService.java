@@ -18,8 +18,8 @@ public class RssService {
     private final WebClient webClient;
     private final SAXBuilder saxBuilder;
 
-    public RssService() {
-        this.webClient = WebClient.builder().build();
+    public RssService(WebClient webClient) {
+        this.webClient = webClient;
         this.saxBuilder = new SAXBuilder();
     }
 
@@ -35,8 +35,7 @@ public class RssService {
         return sourceInfoDTO;
     }
 
-
-    private String getResponseBody(final String url) {
+    private String getResponseBody(String url) {
         ResponseEntity<String> response =
                 webClient.get().uri(URI.create(url)).retrieve().toEntity(String.class).block();
         return response != null ? response.getBody() : null;
@@ -53,7 +52,7 @@ public class RssService {
                     channel.getChildText("link")
             );
 
-        } catch (JDOMException | java.io.IOException exception ) {
+        } catch (JDOMException | java.io.IOException | NullPointerException exception) {
             System.out.println(exception.getMessage());
             return null;
         }
