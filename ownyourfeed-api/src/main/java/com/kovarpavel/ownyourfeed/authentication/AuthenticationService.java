@@ -1,6 +1,12 @@
 package com.kovarpavel.ownyourfeed.authentication;
 
+import com.kovarpavel.ownyourfeed.authentication.dto.TokenDTO;
+import com.kovarpavel.ownyourfeed.authentication.dto.UserRegistrationDTO;
+import com.kovarpavel.ownyourfeed.exception.RefreshTokenExpiredException;
 import com.kovarpavel.ownyourfeed.exception.UserExistException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -16,7 +22,10 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +34,9 @@ public class AuthenticationService implements UserDetailsService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtEncoder jwtEncoder;
+    private final Map<String, RefreshToken> refreshTokens;
+
+    Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     public AuthenticationService(
             UserRepository userRepository,
@@ -33,6 +45,7 @@ public class AuthenticationService implements UserDetailsService {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtEncoder = jwtEncoder;
+        refreshTokens = new ConcurrentHashMap<>();
     }
 
     public void registerUser(final UserRegistrationDTO userRegistrationDTO) {
@@ -60,7 +73,33 @@ public class AuthenticationService implements UserDetailsService {
         )).orElse(null);
     }
 
-    public String generateToken(final Authentication authentication) {
+    public TokenDTO generateTokens(final Authentication authentication) {
+        logger.info("Generating tokens for authenticated user: " + authentication.getName());
+        return new TokenDTO(
+            generateBearerToken(authentication), 
+            generateRefreshToken(authentication));
+    }
+
+    public String refreshToken(final String refreshToken) {
+        logger.info("Refresh token ...");
+        var savedToken = refreshTokens.get(refreshToken);
+        if (savedToken != null && Instant.now().isBefore(savedToken.expiresAt())) {
+            logger.info("Refreshing token for user: " + savedToken.authentication().getName());
+            refreshTokens.put(
+                refreshToken, 
+                new RefreshToken(savedToken.authentication(), Instant.now().plus(1, ChronoUnit.DAYS)));
+            return generateBearerToken(savedToken.authentication());
+        }
+        throw new RefreshTokenExpiredException("Provided refresh token is invalid or expired, get new tokens via api/auth/token");
+    }
+
+    private String generateRefreshToken(final Authentication authentication) {
+        var refreshToken = UUID.randomUUID().toString();
+        refreshTokens.put(refreshToken, new RefreshToken(authentication, Instant.now().plus(1, ChronoUnit.DAYS)));
+        return refreshToken;
+    }
+
+    private String generateBearerToken(final Authentication authentication) {
         Instant now = Instant.now();
         String scope = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
