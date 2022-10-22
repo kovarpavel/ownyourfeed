@@ -1,6 +1,8 @@
 package com.kovarpavel.ownyourfeed.exception;
 
 import com.kovarpavel.ownyourfeed.rss.RssApiException;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -33,6 +35,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(value = RssApiException.class)
     protected ResponseEntity<Object> handleRssApiException(RssApiException ex, WebRequest request) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = RefreshTokenExpiredException.class)
+    protected ResponseEntity<Object> handleRefreshTokenExpiredException(RefreshTokenExpiredException ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 
 }
