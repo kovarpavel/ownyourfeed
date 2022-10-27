@@ -13,12 +13,12 @@ import java.io.ByteArrayInputStream;
 import java.net.URI;
 
 @Service
-public class RssService {
+public class RssSourceService {
 
     private final WebClient webClient;
     private final SAXBuilder saxBuilder;
 
-    public RssService(WebClient webClient) {
+    public RssSourceService(WebClient webClient) {
         this.webClient = webClient;
         this.saxBuilder = new SAXBuilder();
     }

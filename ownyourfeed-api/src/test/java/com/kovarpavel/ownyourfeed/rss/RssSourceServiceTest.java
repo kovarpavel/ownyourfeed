@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @SpringJUnitConfig
 @ExtendWith(MockitoExtension.class)
-public class RssServiceTest {
+public class RssSourceServiceTest {
 
     @MockBean
     private WebClient webClient;
@@ -62,7 +62,7 @@ public class RssServiceTest {
                 new ResponseEntity<String>(rss, HttpStatus.OK)
         ));
 
-        RssService service = new RssService(webClient);
+        RssSourceService service = new RssSourceService(webClient);
         assertEquals(
                 service.getRssChannelInfo("url"),
                 new SourceDetailsDTO(
@@ -80,7 +80,7 @@ public class RssServiceTest {
                 new ResponseEntity<String>(HttpStatus.NOT_FOUND)
         ));
 
-        RssService service = new RssService(webClient);
+        RssSourceService service = new RssSourceService(webClient);
         Exception ex = assertThrows(RssApiException.class, () -> service.getRssChannelInfo("url"));
         assertEquals("Response from URL: url is empty.", ex.getMessage());
     }
@@ -94,7 +94,7 @@ public class RssServiceTest {
                 new ResponseEntity<>("", HttpStatus.OK)
         ));
 
-        RssService service = new RssService(webClient);
+        RssSourceService service = new RssSourceService(webClient);
         Exception ex = assertThrows(RssApiException.class, () -> service.getRssChannelInfo("url"));
         assertEquals("Parsing of response from URL: url failed.", ex.getMessage());
     }
