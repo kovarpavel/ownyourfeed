@@ -4,7 +4,7 @@ import com.kovarpavel.ownyourfeed.authentication.UserEntity;
 import com.kovarpavel.ownyourfeed.authentication.UserRepository;
 import com.kovarpavel.ownyourfeed.exception.SourceNotFoundException;
 import com.kovarpavel.ownyourfeed.exception.UserNotFoundException;
-import com.kovarpavel.ownyourfeed.rss.RssService;
+import com.kovarpavel.ownyourfeed.rss.RssSourceService;
 import com.kovarpavel.ownyourfeed.source.dto.NewSourceDTO;
 import com.kovarpavel.ownyourfeed.source.dto.SourceDTO;
 import com.kovarpavel.ownyourfeed.source.dto.SourceDetailsDTO;
@@ -20,9 +20,9 @@ public class DefaultSourceService implements SourceService {
 
     private final SourceRepository sourceRepository;
     private final UserRepository userRepository;
-    private final RssService rssService;
+    private final RssSourceService rssService;
 
-    public DefaultSourceService(SourceRepository sourceRepository, UserRepository userRepository, RssService rssService) {
+    public DefaultSourceService(SourceRepository sourceRepository, UserRepository userRepository, RssSourceService rssService) {
         this.sourceRepository = sourceRepository;
         this.userRepository = userRepository;
         this.rssService = rssService;

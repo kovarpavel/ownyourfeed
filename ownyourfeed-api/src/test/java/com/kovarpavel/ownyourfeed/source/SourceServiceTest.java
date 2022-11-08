@@ -5,7 +5,7 @@ import com.kovarpavel.ownyourfeed.authentication.UserRepository;
 import com.kovarpavel.ownyourfeed.exception.SourceNotFoundException;
 import com.kovarpavel.ownyourfeed.exception.UserNotFoundException;
 import com.kovarpavel.ownyourfeed.rss.RssApiException;
-import com.kovarpavel.ownyourfeed.rss.RssService;
+import com.kovarpavel.ownyourfeed.rss.RssSourceService;
 import com.kovarpavel.ownyourfeed.source.dto.NewSourceDTO;
 import com.kovarpavel.ownyourfeed.source.dto.SourceDTO;
 import com.kovarpavel.ownyourfeed.source.dto.SourceDetailsDTO;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SourceServiceTest {
 
     @MockBean
-    private RssService rssService;
+    private RssSourceService rssService;
 
     @MockBean
     private UserRepository userRepository;

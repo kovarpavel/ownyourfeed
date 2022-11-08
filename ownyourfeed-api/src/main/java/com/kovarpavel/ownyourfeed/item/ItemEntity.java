@@ -37,9 +37,9 @@ public class ItemEntity {
         final String title, 
         final String link, 
         final String description, 
-        final String guid, 
         final String author,
-        final LocalDateTime date) {
+        final LocalDateTime date,
+        final String guid) {
             this.title = title;
             this.link = link;
             this.description = description;

@@ -1,6 +1,5 @@
 package com.kovarpavel.ownyourfeed.rss;
 
-import com.kovarpavel.ownyourfeed.source.dto.SourceDetailsDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -10,17 +9,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.net.URI;
+import com.kovarpavel.ownyourfeed.item.dto.ItemDTO;
+
+import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 @SpringJUnitConfig
 @ExtendWith(MockitoExtension.class)
-public class RssServiceTest {
+public class RssItemServiceTest {
 
     @MockBean
     private WebClient webClient;
@@ -37,7 +42,7 @@ public class RssServiceTest {
     private WebClient.ResponseSpec responseSpecMock;
 
     @Test
-    void getChannelInfo_Success() {
+    void getLatestItems_Success() {
         String rss = "<rss xmlns:media=\"http://search.yahoo.com/mrss/\" version=\"2.0\">\n" +
                 "<channel>\n" +
                 "<image>\n" +
@@ -52,6 +57,17 @@ public class RssServiceTest {
                 "<description>Root.cz - informace nejen ze světa Linuxu</description>\n" +
                 "<language>cs</language>\n" +
                 "<pubDate>Mon, 10 Oct 2022 22:00:10 GMT</pubDate>" +
+                "<item>" +
+                "<title>Práce na podpoře API Vulkan v Blenderu pokračují</title>" +
+                "<link>https://www.root.cz/zpravicky/z-coreboot-mizi-podpora-nekterych-zakladnich-desek-platformy-amd/?utm_source=rss&amp;utm_medium=text&amp;utm_campaign=rss</link>"
+                +
+                "<description>Plány na využití v současnosti...</description>"
+                +
+                "<author>redakce@root.cz (Root.cz: David Ježek)</author>" +
+                "<pubDate>Tue, 08 Nov 2022 15:23:41 GMT</pubDate>" +
+                "<enclosure url=\"https://i.iinfo.cz/images/292/blender-1.jpg\" length='67376' type=\"image/jpeg\"/>" +
+                "<guid isPermaLink=\"false\">www.root.cz-actuality-44170</guid>" +
+                "</item>" +
                 "</channel>" +
                 "</rss>";
 
@@ -59,16 +75,20 @@ public class RssServiceTest {
         when(requestHeadersUriSpecMock.uri(URI.create("url"))).thenReturn(requestHeadersSpecMock);
         when(requestHeadersSpecMock.retrieve()).thenReturn(responseSpecMock);
         when(responseSpecMock.toEntity(String.class)).thenReturn(Mono.just(
-                new ResponseEntity<String>(rss, HttpStatus.OK)
-        ));
+                new ResponseEntity<String>(rss, HttpStatus.OK)));
 
-        RssService service = new RssService(webClient);
-        assertEquals(
-                service.getRssChannelInfo("url"),
-                new SourceDetailsDTO(
-                        "Root.cz - články",
-                        "Root.cz - informace nejen ze světa Linuxu",
-                        "https://www.root.cz/clanky/"));
+        RssItemService service = new RssItemService(webClient);
+        var result = service.getLatestItems("url");
+
+        assertEquals(1, result.size());
+        assertEquals(List.of(new ItemDTO(
+                "Práce na podpoře API Vulkan v Blenderu pokračují",
+                "https://www.root.cz/zpravicky/z-coreboot-mizi-podpora-nekterych-zakladnich-desek-platformy-amd/?utm_source=rss&utm_medium=text&utm_campaign=rss",
+                "Plány na využití v současnosti...",
+                "redakce@root.cz (Root.cz: David Ježek)",
+                LocalDateTime.parse("Tue, 08 Nov 2022 15:23:41 GMT",
+                        DateTimeFormatter.RFC_1123_DATE_TIME),
+                "www.root.cz-actuality-44170")), result);
     }
 
     @Test
@@ -80,8 +100,8 @@ public class RssServiceTest {
                 new ResponseEntity<String>(HttpStatus.NOT_FOUND)
         ));
 
-        RssService service = new RssService(webClient);
-        Exception ex = assertThrows(RssApiException.class, () -> service.getRssChannelInfo("url"));
+        RssItemService service = new RssItemService(webClient);
+        Exception ex = assertThrows(RssApiException.class, () -> service.getLatestItems("url"));
         assertEquals("Response from URL: url is empty.", ex.getMessage());
     }
 
@@ -94,8 +114,9 @@ public class RssServiceTest {
                 new ResponseEntity<>("", HttpStatus.OK)
         ));
 
-        RssService service = new RssService(webClient);
-        Exception ex = assertThrows(RssApiException.class, () -> service.getRssChannelInfo("url"));
-        assertEquals("Parsing of response from URL: url failed.", ex.getMessage());
+        RssItemService service = new RssItemService(webClient);
+        Exception ex = assertThrows(RssApiException.class, () -> service.getLatestItems("url"));
+        assertEquals("Parsing of items from URL: url failed.", ex.getMessage());
     }
+
 }
