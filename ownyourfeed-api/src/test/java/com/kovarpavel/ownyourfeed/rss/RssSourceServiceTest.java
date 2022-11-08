@@ -22,54 +22,53 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class RssSourceServiceTest {
 
-    @MockBean
-    private WebClient webClient;
+        @MockBean
+        private WebClient webClient;
 
-    @Mock
-    @SuppressWarnings("rawtypes")
-    private WebClient.RequestHeadersUriSpec requestHeadersUriSpecMock;
+        @Mock
+        @SuppressWarnings("rawtypes")
+        private WebClient.RequestHeadersUriSpec requestHeadersUriSpecMock;
 
-    @Mock
-    @SuppressWarnings("rawtypes")
-    private WebClient.RequestHeadersSpec requestHeadersSpecMock;
+        @Mock
+        @SuppressWarnings("rawtypes")
+        private WebClient.RequestHeadersSpec requestHeadersSpecMock;
 
-    @Mock
-    private WebClient.ResponseSpec responseSpecMock;
+        @Mock
+        private WebClient.ResponseSpec responseSpecMock;
 
-    @Test
-    void getChannelInfo_Success() {
-        String rss = "<rss xmlns:media=\"http://search.yahoo.com/mrss/\" version=\"2.0\">\n" +
-                "<channel>\n" +
-                "<image>\n" +
-                "<link>https://www.root.cz/</link>\n" +
-                "<title>Root.cz</title>\n" +
-                "<url>https://i.iinfo.cz/r/rss-88x31.gif</url>\n" +
-                "<width>88</width>\n" +
-                "<height>31</height>\n" +
-                "</image>\n" +
-                "<title>Root.cz - články</title>\n" +
-                "<link>https://www.root.cz/clanky/</link>\n" +
-                "<description>Root.cz - informace nejen ze světa Linuxu</description>\n" +
-                "<language>cs</language>\n" +
-                "<pubDate>Mon, 10 Oct 2022 22:00:10 GMT</pubDate>" +
-                "</channel>" +
-                "</rss>";
+        @Test
+        void getChannelInfo_Success() {
+                String rss = "<rss xmlns:media=\"http://search.yahoo.com/mrss/\" version=\"2.0\">\n" +
+                                "<channel>\n" +
+                                "<image>\n" +
+                                "<link>https://www.root.cz/</link>\n" +
+                                "<title>Root.cz</title>\n" +
+                                "<url>https://i.iinfo.cz/r/rss-88x31.gif</url>\n" +
+                                "<width>88</width>\n" +
+                                "<height>31</height>\n" +
+                                "</image>\n" +
+                                "<title>Root.cz - články</title>\n" +
+                                "<link>https://www.root.cz/clanky/</link>\n" +
+                                "<description>Root.cz - informace nejen ze světa Linuxu</description>\n" +
+                                "<language>cs</language>\n" +
+                                "<pubDate>Mon, 10 Oct 2022 22:00:10 GMT</pubDate>" +
+                                "</channel>" +
+                                "</rss>";
 
-        when(webClient.get()).thenReturn(requestHeadersUriSpecMock);
-        when(requestHeadersUriSpecMock.uri(URI.create("url"))).thenReturn(requestHeadersSpecMock);
-        when(requestHeadersSpecMock.retrieve()).thenReturn(responseSpecMock);
-        when(responseSpecMock.toEntity(String.class)).thenReturn(Mono.just(
-                new ResponseEntity<String>(rss, HttpStatus.OK)
-        ));
+                when(webClient.get()).thenReturn(requestHeadersUriSpecMock);
+                when(requestHeadersUriSpecMock.uri(URI.create("url"))).thenReturn(requestHeadersSpecMock);
+                when(requestHeadersSpecMock.retrieve()).thenReturn(responseSpecMock);
+                when(responseSpecMock.toEntity(String.class)).thenReturn(Mono.just(
+                                new ResponseEntity<String>(rss, HttpStatus.OK)));
 
-        RssSourceService service = new RssSourceService(webClient);
-        assertEquals(
-                service.getRssChannelInfo("url"),
-                new SourceDetailsDTO(
-                        "Root.cz - články",
-                        "Root.cz - informace nejen ze světa Linuxu",
-                        "https://www.root.cz/clanky/"));
-    }
+                RssSourceService service = new RssSourceService(webClient);
+                assertEquals(
+                                service.getRssChannelInfo("url"),
+                                new SourceDetailsDTO(
+                                                "Root.cz - články",
+                                                "Root.cz - informace nejen ze světa Linuxu",
+                                                "https://www.root.cz/clanky/"));
+        }
 
     @Test
     void getChannelInfo_EmptyBody() {
@@ -96,6 +95,6 @@ public class RssSourceServiceTest {
 
         RssSourceService service = new RssSourceService(webClient);
         Exception ex = assertThrows(RssApiException.class, () -> service.getRssChannelInfo("url"));
-        assertEquals("Parsing of response from URL: url failed.", ex.getMessage());
+        assertEquals("Parsing source info from URL: url failed.", ex.getMessage());
     }
 }
