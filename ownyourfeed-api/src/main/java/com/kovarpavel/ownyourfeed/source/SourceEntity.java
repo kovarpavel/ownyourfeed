@@ -2,8 +2,8 @@ package com.kovarpavel.ownyourfeed.source;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.kovarpavel.ownyourfeed.authentication.UserEntity;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.util.Set;
 
 @Entity
